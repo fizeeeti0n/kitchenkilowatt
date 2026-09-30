@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <!-- Profile Header Card -->
+    <div style="background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 2rem; display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--brass-metallic); color: #fff; font-size: 2rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+            {{ user.username|slice:":1"|upper }}
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem;">
+                {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+            </h1>
+            <p style="margin: 0.3rem 0 0; color: #888; font-size: 0.95rem;">
+                @{{ user.username }} • Member since {{ user.date_joined|date:"F Y" }}
+            </p>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div style="margin-bottom: 1.5rem;">
+        {% for message in messages %}
+        <div style="padding: 1rem 1.5rem; border-radius: 8px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #22c55e; font-weight: 500;">
+            ✔ {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Update Profile Form -->
+    <div style="background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 2.5rem;">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+            Account Details & Settings
+        </h2>
+
+        <form method="post" action="{% url 'accounts:profile' %}">
+            {% csrf_token %}
+            
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Personal Info -->
+                <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 240px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">First Name</label>
+                        <input type="text" name="first_name" value="{{ user.first_name }}" placeholder="Jane" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1; min-width: 240px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Last Name</label>
+                        <input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Doe" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 240px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Email Address</label>
+                        <input type="email" name="email" value="{{ user.email }}" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1; min-width: 240px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Phone Number</label>
+                        <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}" placeholder="+1 (555) 000-0000" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Default Shipping Address -->
+                <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    Default Shipping Address
+                </h3>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Street Address</label>
+                    <input type="text" name="street_address" value="{{ address.street_address|default:'' }}" placeholder="123 Culinary St" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 1.2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">City</label>
+                        <input type="text" name="city" value="{{ address.city|default:'' }}" placeholder="New York" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">State / Province</label>
+                        <input type="text" name="state" value="{{ address.state|default:'' }}" placeholder="NY" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Postal Code</label>
+                        <input type="text" name="postal_code" value="{{ address.postal_code|default:'' }}" placeholder="10001" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Country</label>
+                    <input type="text" name="country" value="{{ address.country|default:'United States' }}" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn" style="padding: 0.9rem 2.2rem; font-size: 1.05rem; cursor: pointer;">
+                        Save Profile Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

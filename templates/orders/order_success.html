@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Order Placed Successfully | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 3rem auto; padding: 2.5rem; background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); text-align: center;">
+    <div style="font-size: 4rem; color: #22c55e; margin-bottom: 1rem;">🎉</div>
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Thank You for Your Order!</h1>
+    <p style="color: #888; font-size: 1.1rem; margin-bottom: 2rem;">
+        Your order <strong>#{{ order.order_number }}</strong> has been placed successfully.
+    </p>
+
+    <div style="background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary-copper);">Order Details</h3>
+        <p style="margin: 0.4rem 0;"><strong>Customer:</strong> {{ order.customer_name }} ({{ order.customer_email }})</p>
+        <p style="margin: 0.4rem 0;"><strong>Shipping Address:</strong> {{ order.shipping_address_text }}</p>
+        <p style="margin: 0.4rem 0;"><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+        <p style="margin: 0.4rem 0;"><strong>Total Paid:</strong> ${{ order.total_amount }}</p>
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{% url 'products:list' %}" class="btn" style="padding: 0.8rem 1.8rem; text-decoration: none;">
+            Continue Shopping
+        </a>
+        {% if request.user.is_staff %}
+        <a href="{% url 'dashboard:orders' %}" class="btn" style="padding: 0.8rem 1.8rem; text-decoration: none; background: transparent; border: 1px solid var(--primary-copper); color: var(--primary-copper);">
+            View in Admin Dashboard
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

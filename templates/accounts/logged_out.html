@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        gap: 4rem;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .auth-card {
+        background-color: var(--card-bg);
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        width: 100%;
+        max-width: 450px;
+        z-index: 10;
+    }
+
+    .auth-showcase {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1200px;
+        max-width: 500px;
+    }
+
+    .showcase-block {
+        width: 100%;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(224, 122, 56, 0.1), rgba(24, 26, 32, 0.5));
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        transform: rotateY(-15deg) rotateX(10deg);
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        position: relative;
+    }
+
+    .showcase-block:hover {
+        transform: rotateY(0deg) rotateX(0deg) translateY(-10px);
+    }
+
+    .showcase-block img {
+        width: 100%;
+        border-radius: 12px;
+        transform: translateZ(30px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+    
+    .showcase-text {
+        transform: translateZ(50px);
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .showcase-text h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: var(--primary-copper);
+    }
+
+    .showcase-text p {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 900px) {
+        .auth-container {
+            flex-direction: column;
+        }
+        .auth-showcase {
+            display: none;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div style="padding: 1rem; margin-bottom: 2rem; border-radius: 5px; text-align: center; background-color: rgba(76, 175, 80, 0.1); color: #4caf50;">
+            You have been successfully logged out.
+        </div>
+        
+        <h2 style="text-align: center; margin-bottom: 2rem;">Sign In Again</h2>
+        
+        <form method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.5rem;">
+                <label for="id_username" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Username</label>
+                <input type="text" name="username" id="id_username" required style="width: 100%; padding: 1rem; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; background-color: rgba(0,0,0,0.05); color: inherit; font-family: inherit;">
+            </div>
+            <div style="margin-bottom: 2rem;">
+                <label for="id_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+                <input type="password" name="password" id="id_password" required style="width: 100%; padding: 1rem; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; background-color: rgba(0,0,0,0.05); color: inherit; font-family: inherit;">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem; border-radius: 8px;">Log In </button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.95rem;">
+            Don't have an account? <a href="{% url 'accounts:register' %}" style="color: var(--primary-copper); text-decoration: none; font-weight: 600;">Sign up</a>
+        </p>
+    </div>
+
+    <!-- 3D Glimpse Block -->
+    <div class="auth-showcase">
+        <div class="showcase-block">
+            <img src="/media/products/hero_smart_oven.png" alt="Website Glimpse">
+            <div class="showcase-text">
+                <h3>Discover Culinary Tech</h3>
+                <p>Log in to access our premium appliance showroom and exclusive member pricing.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

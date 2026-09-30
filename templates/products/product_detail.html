@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding: 2rem; max-width: 1200px; margin: 0 auto; display: flex; gap: 4rem;">
+    <!-- Product Images -->
+    <div style="flex: 1;">
+        {% if product.images.first %}
+        <div style="background-color: var(--card-bg); border-radius: 12px; padding: 2rem; box-shadow: var(--card-shadow); text-align: center;">
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 8px;">
+        </div>
+        {% else %}
+        <div style="background-color: var(--card-bg); border-radius: 12px; padding: 5rem 2rem; text-align: center; box-shadow: var(--card-shadow);">
+            No Image Available
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Product Info -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 1.5rem;">
+        <h1 style="margin: 0;">{{ product.name }}</h1>
+        <p style="font-size: 1.2rem; color: #888; margin: 0;">By {{ product.brand.name }}</p>
+        
+        <div style="font-size: 2rem; color: var(--primary-copper); font-weight: bold;">
+            ${{ product.current_price }}
+            {% if product.discount_price %}
+            <span style="text-decoration: line-through; color: #666; font-size: 1.2rem; margin-left: 1rem;">${{ product.price }}</span>
+            {% endif %}
+        </div>
+
+        <p style="line-height: 1.6; font-size: 1.1rem;">{{ product.description }}</p>
+
+        {% if product.features %}
+        <ul style="padding-left: 1.5rem; line-height: 1.8;">
+            {% for feature in product.features %}
+            <li>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if product.is_in_stock %}
+        <form action="{% url 'cart:add' product.id %}" method="post" style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center;">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="1" min="1" max="99" style="width: 70px; padding: 0.8rem; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2); background-color: transparent; color: inherit; font-size: 1rem;">
+            <button type="submit" class="btn" style="flex-grow: 1; padding: 1rem; font-size: 1.1rem; cursor: pointer;">Add to Cart</button>
+        </form>
+        {% else %}
+        <button class="btn" disabled style="margin-top: 2rem; opacity: 0.5; cursor: not-allowed; width: 100%; padding: 1rem; font-size: 1.1rem;">Out of Stock</button>
+        {% endif %}
+        
+        <p style="margin-top: 1rem; font-size: 0.9rem; color: {% if product.is_in_stock %}#4caf50{% else %}#f44336{% endif %};">
+            {% if product.is_in_stock %}
+                In Stock ({{ product.total_stock }} available)
+            {% else %}
+                Out of Stock
+            {% endif %}
+        </p>
+
+    </div>
+</div>
+{% endblock %}

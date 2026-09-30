@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .hero {
+        padding: 4rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, rgba(24, 26, 32, 0.9), rgba(15, 16, 19, 0.9));
+        color: white;
+        min-height: 50vh;
+        position: relative;
+        overflow: hidden;
+    }
+    body:not(.dark-mode) .hero {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: #18191c;
+    }
+
+    .hero-content {
+        max-width: 50%;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        background: var(--primary-copper);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        margin: 0.5rem 0;
+        line-height: 1.1;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    .hero-img-container {
+        position: relative;
+        width: 40%;
+        z-index: 2;
+        perspective: 1000px;
+    }
+
+    .hero-img {
+        width: 100%;
+        border-radius: 12px;
+        transform: rotateY(-10deg) rotateX(5deg);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        transition: transform 0.5s;
+    }
+
+    .hero-img:hover {
+        transform: rotateY(0deg) rotateX(0deg);
+    }
+
+    .section-title {
+        text-align: center;
+        margin: 4rem 0 2rem;
+        font-size: 2.5rem;
+    }
+
+</style>
+
+{% if banners %}
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">{{ banners.0.badge }}</div>
+        <h1>{{ banners.0.title }}</h1>
+        <p>{{ banners.0.subtitle }}</p>
+        <a href="{{ banners.0.button_link }}" class="btn" style="font-size: 1.2rem; padding: 0.8rem 2rem;">{{ banners.0.button_text }}</a>
+    </div>
+    {% if featured_products.0.images.first %}
+    <div class="hero-img-container">
+        <!-- Using the first featured product's image as a hero visual if banner doesn't have one -->
+        <img src="{{ featured_products.0.images.first.image.url }}" alt="Hero Image" class="hero-img">
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+<h2 class="section-title">Featured Collections</h2>
+
+<div class="product-grid">
+    {% for product in featured_products %}
+    <div class="product-card">
+        <a href="{% url 'products:detail' product.slug %}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex-grow: 1;">
+            {% if product.images.first %}
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+            {% endif %}
+            <div class="product-info" style="flex-grow: 1;">
+                <h3 class="product-title">{{ product.name }}</h3>
+                <div>
+                    <span class="product-price">${{ product.current_price }}</span>
+                    {% if product.discount_price %}
+                    <span class="product-discount">${{ product.price }}</span>
+                    {% endif %}
+                </div>
+                <p style="font-size: 0.9rem; color: #888; margin: 0.5rem 0 0;">{{ product.brand.name }}</p>
+            </div>
+        </a>
+        <form action="{% url 'cart:add' product.id %}" method="post" style="padding: 0 1.5rem 1.5rem;">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="width: 100%; padding: 0.6rem; font-size: 0.9rem; cursor: pointer;">Add to Cart</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

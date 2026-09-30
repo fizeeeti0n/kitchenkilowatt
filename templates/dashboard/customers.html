@@ -1,0 +1,80 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Customers Management — Admin Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Customer Management</h1>
+        <p class="subtitle">View and manage registered user accounts and customer metrics.</p>
+    </div>
+    <div>
+        <a href="/admin/accounts/user/add/" target="_blank" class="btn-sm btn-copper" style="padding: 0.6rem 1.2rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            ➕ Add Customer
+        </a>
+    </div>
+</div>
+
+<!-- Stat Grid -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Customers</div>
+        <div class="stat-value copper">{{ total_customers }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active Customer Accounts</div>
+        <div class="stat-value">{{ active_customers }}</div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <span>Registered Customers</span>
+        <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">Total {{ customers.count }} customers</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Orders</th>
+                <th>Total Spent</th>
+                <th>Joined Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #d48c46, #b86d2a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem;">
+                            {{ customer.username|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <strong>{% if customer.get_full_name %}{{ customer.get_full_name }}{% else %}{{ customer.username }}{% endif %}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">@{{ customer.username }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="color: var(--text-muted);">{{ customer.email|default:"N/A" }}</td>
+                <td>{{ customer.phone_number|default:"N/A" }}</td>
+                <td>
+                    <span class="status-badge status-processing">{{ customer.total_orders }} order{% if customer.total_orders != 1 %}s{% endif %}</span>
+                </td>
+                <td>
+                    <strong style="color: var(--primary-copper);">${{ customer.total_spent|default:0|floatformat:2 }}</strong>
+                </td>
+                <td style="color: var(--text-muted);">{{ customer.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    <a href="/admin/accounts/user/{{ customer.id }}/change/" target="_blank" class="btn-sm btn-outline">Edit User</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="empty-state">No registered customers found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

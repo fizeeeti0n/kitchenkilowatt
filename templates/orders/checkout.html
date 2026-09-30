@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem;">
+    <h1 style="font-size: 2.2rem; margin-bottom: 2rem;">Checkout</h1>
+
+    <form method="post" action="{% url 'orders:checkout' %}" style="display: flex; gap: 2.5rem; flex-wrap: wrap; align-items: flex-start;">
+        {% csrf_token %}
+        
+        <!-- Shipping & Customer Form -->
+        <div style="flex: 2; min-width: 320px; background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 2rem;">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+                Shipping & Contact Information
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Full Name</label>
+                    <input type="text" name="customer_name" value="{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Email Address</label>
+                        <input type="email" name="customer_email" value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Phone Number</label>
+                        <input type="text" name="customer_phone" placeholder="+1 (555) 000-0000" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Street Address</label>
+                    <input type="text" name="street_address" placeholder="123 Culinary Way, Suite 100" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">City</label>
+                        <input type="text" name="city" placeholder="New York" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #888;">Postal Code</label>
+                        <input type="text" name="postal_code" placeholder="10001" required style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+                    Payment Method
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
+                        <input type="radio" name="payment_method" value="COD" checked>
+                        <span>💵 Cash on Delivery (COD)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
+                        <input type="radio" name="payment_method" value="CARD_SANDBOX">
+                        <span>💳 Express Card / Stripe Sandbox</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Side Card -->
+        <div style="flex: 1; min-width: 280px; background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 1.8rem;">
+            <h3 style="margin-top: 0; margin-bottom: 1.2rem; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+                Your Order
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem; max-height: 250px; overflow-y: auto;">
+                {% for item in items %}
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
+                    <div>
+                        <strong>{{ item.quantity }}x</strong> {{ item.product.name }}
+                    </div>
+                    <span style="font-weight: 600;">${{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #888;">
+                <span>Subtotal</span>
+                <span style="color: var(--text-main);">${{ subtotal }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: #888;">
+                <span>Shipping</span>
+                <span style="color: #22c55e;">FREE</span>
+            </div>
+
+            <div style="border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1rem; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">
+                <span>Total Due</span>
+                <span style="color: var(--primary-copper);">${{ total }}</span>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1.1rem; cursor: pointer;">
+                Proceed to Payment →
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

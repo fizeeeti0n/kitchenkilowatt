@@ -1,0 +1,104 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Products Management — Admin Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Products Management</h1>
+        <p class="subtitle">View and manage all items in your kitchen catalog.</p>
+    </div>
+    <div>
+        <a href="/admin/products/product/add/" target="_blank" class="btn-sm btn-copper" style="padding: 0.6rem 1.2rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            ➕ Add Product
+        </a>
+    </div>
+</div>
+
+<!-- Stat Grid -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Catalog Products</div>
+        <div class="stat-value copper">{{ total_products }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active Storefront Items</div>
+        <div class="stat-value">{{ active_products }}</div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <span>Product Inventory Catalog</span>
+        <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">Total {{ products.count }} products</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+                        {% else %}
+                            <div style="width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-muted);">No Img</div>
+                        {% endif %}
+                        <div>
+                            <strong style="font-size: 0.95rem;">{{ product.name }}</strong>
+                            {% if product.is_featured %}
+                                <span class="stat-badge badge-warning" style="margin-left: 0.4rem;">Featured</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td style="font-family: monospace; font-weight: 600; color: var(--text-muted);">{{ product.sku }}</td>
+                <td>{{ product.category.name }}</td>
+                <td>{% if product.brand %}{{ product.brand.name }}{% else %}<span style="color: var(--text-muted);">-</span>{% endif %}</td>
+                <td>
+                    <strong style="color: var(--primary-copper);">${{ product.current_price }}</strong>
+                    {% if product.discount_price %}
+                        <span style="text-decoration: line-through; font-size: 0.8rem; color: var(--text-muted); margin-left: 0.3rem;">${{ product.price }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.total_stock <= 0 %}
+                        <span class="status-badge status-cancelled">Out of stock (0)</span>
+                    {% elif product.total_stock <= 5 %}
+                        <span class="status-badge status-pending">Low stock ({{ product.total_stock }})</span>
+                    {% else %}
+                        <span class="status-badge status-delivered">In stock ({{ product.total_stock }})</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.is_active %}
+                        <span class="status-badge status-delivered">Active</span>
+                    {% else %}
+                        <span class="status-badge status-cancelled">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{% url 'products:detail' product.slug %}" target="_blank" class="btn-sm btn-outline">View</a>
+                        <a href="/admin/products/product/{{ product.id }}/change/" target="_blank" class="btn-sm btn-copper">Edit</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="empty-state">No products found in catalog.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

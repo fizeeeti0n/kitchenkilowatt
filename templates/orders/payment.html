@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Payment | {{ STORE_NAME }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h1 style="font-size: 2.4rem; margin-bottom: 0.5rem;">Complete Your Payment</h1>
+        <p style="color: #888; font-size: 1.1rem;">
+            Order <strong>#{{ order.order_number }}</strong> — Amount Due: <strong style="color: var(--primary-copper);">${{ order.total_amount }}</strong>
+        </p>
+    </div>
+
+    <div style="display: flex; gap: 2.5rem; flex-wrap: wrap; align-items: flex-start;">
+        <!-- Payment Options & Form -->
+        <div style="flex: 2; min-width: 320px; background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 2rem;">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+                Select Payment Method
+            </h3>
+
+            <form method="post" action="{% url 'orders:payment' order.id %}" id="payment-form">
+                {% csrf_token %}
+
+                <!-- Method selection tabs -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.8rem; flex-wrap: wrap;">
+                    <label class="pay-tab active" onclick="switchMethod('STRIPE')" style="flex: 1; padding: 1rem; border-radius: 8px; border: 2px solid var(--primary-copper); background: rgba(224, 122, 56, 0.1); cursor: pointer; text-align: center; font-weight: 600;">
+                        <input type="radio" name="payment_method" value="STRIPE" checked style="display: none;">
+                        💳 Credit Card
+                    </label>
+                    <label class="pay-tab" onclick="switchMethod('MOBILE')" style="flex: 1; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; cursor: pointer; text-align: center; font-weight: 600;">
+                        <input type="radio" name="payment_method" value="MOBILE" style="display: none;">
+                        📱 Mobile Banking
+                    </label>
+                    <label class="pay-tab" onclick="switchMethod('COD')" style="flex: 1; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; cursor: pointer; text-align: center; font-weight: 600;">
+                        <input type="radio" name="payment_method" value="COD" style="display: none;">
+                        💵 Cash on Delivery
+                    </label>
+                </div>
+
+                <!-- Credit Card Fields -->
+                <div id="section-STRIPE" class="pay-section">
+                    <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">Cardholder Name</label>
+                            <input type="text" name="card_name" placeholder="John Doe" value="{{ order.customer_name }}" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">Card Number</label>
+                            <input type="text" name="card_number" placeholder="4242 •••• •••• 4242" value="4242424242424242" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box; letter-spacing: 1px;">
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="flex: 1;">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">Expiry Date</label>
+                                <input type="text" name="card_exp" placeholder="MM/YY" value="12/28" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">CVC / CVV</label>
+                                <input type="text" name="card_cvc" placeholder="123" value="123" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Banking Fields -->
+                <div id="section-MOBILE" class="pay-section" style="display: none;">
+                    <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; color: #888;">
+                        Send payment to Merchant Account <strong>+880 1700-000000</strong> (bKash / Nagad) and enter details below:
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">Account Number</label>
+                            <input type="text" name="mobile_acc" placeholder="017xxxxxxxx" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #888;">Transaction ID (TrxID)</label>
+                            <input type="text" name="trx_id" placeholder="TRX987654321" style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: inherit; box-sizing: border-box;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COD Fields -->
+                <div id="section-COD" class="pay-section" style="display: none;">
+                    <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1.2rem; border-radius: 8px; font-size: 0.95rem; color: #22c55e;">
+                        ✔ Pay <strong>${{ order.total_amount }}</strong> in cash upon delivery at your door.
+                    </div>
+                </div>
+
+                <!-- Security Note & Submit -->
+                <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #888; margin-bottom: 1.2rem;">
+                        🔒 Encrypted with 256-bit SSL Security. Your information is 100% safe.
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; padding: 1.1rem; font-size: 1.15rem; cursor: pointer;">
+                        Pay ${{ order.total_amount }} & Confirm Order
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Summary Sidebar -->
+        <div style="flex: 1; min-width: 280px; background-color: var(--card-bg); border-radius: 12px; box-shadow: var(--card-shadow); padding: 1.8rem;">
+            <h3 style="margin-top: 0; margin-bottom: 1.2rem; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+                Order Details
+            </h3>
+
+            <div style="margin-bottom: 1.2rem; font-size: 0.95rem; color: #888; line-height: 1.6;">
+                <strong style="color: var(--text-main);">Deliver To:</strong><br>
+                {{ order.customer_name }}<br>
+                {{ order.shipping_address_text }}<br>
+                📞 {{ order.customer_phone|default:order.customer_email }}
+            </div>
+
+            <h4 style="margin-bottom: 0.8rem; font-size: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.8rem;">
+                Items Summary
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
+                {% for item in items %}
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                    <span>{{ item.quantity }}x {{ item.product_name }}</span>
+                    <span style="font-weight: 600;">${{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1rem; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700;">
+                <span>Total Amount</span>
+                <span style="color: var(--primary-copper);">${{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchMethod(method) {
+    const tabs = document.querySelectorAll('.pay-tab');
+    tabs.forEach(tab => {
+        tab.style.borderColor = 'rgba(255,255,255,0.15)';
+        tab.style.background = 'transparent';
+    });
+    
+    event.currentTarget.style.borderColor = 'var(--primary-copper)';
+    event.currentTarget.style.background = 'rgba(224, 122, 56, 0.1)';
+    event.currentTarget.querySelector('input').checked = true;
+
+    document.querySelectorAll('.pay-section').forEach(sec => sec.style.display = 'none');
+    document.getElementById('section-' + method).style.display = 'block';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding: 2rem;">
+    <h1 style="margin-bottom: 2rem;">All Products</h1>
+    <div style="display: flex; gap: 2rem;">
+        <!-- Filters -->
+        <aside style="width: 250px; flex-shrink: 0;">
+            <div style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 8px; box-shadow: var(--card-shadow);">
+                <h3 style="margin-top: 0;">Categories</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 0.5rem;"><a href="{% url 'products:list' %}" style="text-decoration: none; color: inherit; font-weight: {% if not current_category %}bold{% else %}normal{% endif %};">All Categories</a></li>
+                    {% for cat in categories %}
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="?category={{ cat.slug }}" style="text-decoration: none; color: inherit; font-weight: {% if current_category == cat.slug %}bold{% else %}normal{% endif %};">
+                                {{ cat.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <div style="flex-grow: 1;">
+            {% if products %}
+            <div class="product-grid" style="padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="{% url 'products:detail' product.slug %}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex-grow: 1;">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="product-info" style="flex-grow: 1;">
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            <div>
+                                <span class="product-price">${{ product.current_price }}</span>
+                                {% if product.discount_price %}
+                                <span class="product-discount">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            <p style="font-size: 0.9rem; color: #888; margin: 0.5rem 0 0;">{{ product.brand.name }}</p>
+                        </div>
+                    </a>
+                    <form action="{% url 'cart:add' product.id %}" method="post" style="padding: 0 1.5rem 1.5rem;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn" style="width: 100%; padding: 0.6rem; font-size: 0.9rem; cursor: pointer;">Add to Cart</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No products found in this category.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

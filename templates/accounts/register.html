@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        gap: 4rem;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .auth-card {
+        background-color: var(--card-bg);
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        width: 100%;
+        max-width: 450px;
+        z-index: 10;
+    }
+
+    .auth-showcase {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1200px;
+        max-width: 500px;
+    }
+
+    .showcase-block {
+        width: 100%;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(224, 122, 56, 0.1), rgba(24, 26, 32, 0.5));
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        transform: rotateY(15deg) rotateX(10deg); /* Mirrored rotation for register page */
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        position: relative;
+    }
+
+    .showcase-block:hover {
+        transform: rotateY(0deg) rotateX(0deg) translateY(-10px);
+    }
+
+    .showcase-block img {
+        width: 100%;
+        border-radius: 12px;
+        transform: translateZ(30px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+    
+    .showcase-text {
+        transform: translateZ(50px);
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .showcase-text h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: var(--primary-copper);
+    }
+
+    .showcase-text p {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Django Form Field Styling */
+    .auth-card form p {
+        margin-bottom: 1.2rem;
+    }
+    .auth-card form label {
+        display: block; margin-bottom: 0.5rem; font-weight: 500;
+    }
+    .auth-card form input {
+        width: 100%; padding: 1rem; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; background-color: rgba(0,0,0,0.05); color: inherit; font-family: inherit;
+    }
+    .auth-card form ul {
+        color: #f44336; padding-left: 1.2rem; font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+        .auth-container {
+            flex-direction: column-reverse; /* Form on top */
+        }
+        .auth-showcase {
+            display: none;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <!-- 3D Glimpse Block (Left side for Register) -->
+    <div class="auth-showcase">
+        <div class="showcase-block">
+            <img src="/media/products/espresso_kilowatt.png" alt="Website Glimpse">
+            <div class="showcase-text">
+                <h3>Join the Kitchen Revolution</h3>
+                <p>Sign up today to unlock member benefits, faster checkout, and order tracking.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-card">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Create an Account</h2>
+        <form method="post">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+
+            <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; padding: 1rem; margin-top: 1rem; border-radius: 8px;">Register</button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.95rem;">
+            Already have an account? <a href="{% url 'accounts:login' %}" style="color: var(--primary-copper); text-decoration: none; font-weight: 600;">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
